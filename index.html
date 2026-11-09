@@ -12,16 +12,17 @@ button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;col
 <script>
 /* TAX Lens portal: always loads the latest dashboard from GitHub, so this file never needs to be sent again. */
 (function(){
-  var API='https://api.github.com/repos/fouadelwakil-debug/taxlens-data/contents/app.html?ref=main',RAW='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/app.html';
+  var UI='v1';try{UI=localStorage.getItem('tl_ui')||'v1'}catch(e){}var FILE=UI==='v2'?'app-v2.html':'app.html';window.TL_PORTAL=2;
+  var API='https://api.github.com/repos/fouadelwakil-debug/taxlens-data/contents/'+FILE+'?ref=main',RAW='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/'+FILE;
   function get(u,h){return fetch(u+(u.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store',headers:h||{}}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()})}
   function fail(){document.getElementById('b').hidden=true;var m=document.getElementById('m');m.textContent='تعذر تحميل TAX Lens. تأكد من الاتصال بالإنترنت وحاول تاني.';
     var x=document.createElement('button');x.textContent='إعادة المحاولة';x.onclick=function(){location.reload()};m.parentNode.appendChild(x)}
   function cache(){try{return caches.open('tl-v1')}catch(e){return Promise.reject(e)}}
   function run(h){document.open();document.write(h);document.close()}
-  function fromCache(){return cache().then(function(c){return c.match('app')}).then(function(r){if(!r)throw new Error('none');return r.text()})}
+  function fromCache(){return cache().then(function(c){return c.match('app-'+UI)}).then(function(r){if(!r)throw new Error('none');return r.text()})}
   var to=new Promise(function(_,no){setTimeout(function(){no(new Error('slow'))},12000)});
   Promise.race([get(API,{Accept:'application/vnd.github.raw+json'}).catch(function(){return get(RAW)}),to])
-    .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');cache().then(function(c){return c.put('app',new Response(h,{headers:{'Content-Type':'text/html'}}))}).catch(function(){});run(h)})
+    .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');cache().then(function(c){return c.put('app-'+UI,new Response(h,{headers:{'Content-Type':'text/html'}}))}).catch(function(){});run(h)})
     .catch(function(){fromCache().then(run).catch(fail)});
 })();
 if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
