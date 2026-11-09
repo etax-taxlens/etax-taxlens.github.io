@@ -8,7 +8,7 @@ h1{margin:0;font-size:34px;letter-spacing:.5px}p{margin:0;color:#4A5875;font-siz
 .bar{width:180px;height:4px;border-radius:4px;background:#E6EBF2;overflow:hidden}.bar i{display:block;width:40%;height:100%;background:#D6202E;animation:m 1.1s infinite ease-in-out}
 @keyframes m{0%{transform:translateX(-120%)}100%{transform:translateX(300%)}}
 button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;color:#fff;border-radius:999px;padding:9px 24px;cursor:pointer}</style></head>
-<body><div class="w"><h1>TAX Lens</h1><p id="m">جارٍ تحميل أحدث نسخة…</p><div class="bar" id="b"><i></i></div></div>
+<body><div class="w"><img src="icon-192.png" alt="" style="width:96px;height:96px;border-radius:22px;box-shadow:0 10px 30px rgba(20,48,106,.18)"><h1>TAX <span style="color:#D6202E">Lens</span></h1><p style="margin-top:-8px">منصة تحليل البيانات الضريبية</p><p id="m" style="font-size:13px">جارٍ تحميل أحدث نسخة…</p><div class="bar" id="b"><i></i></div></div>
 <script>
 /* TAX Lens portal: always loads the latest dashboard from GitHub, so this file never needs to be sent again. */
 (function(){
@@ -16,7 +16,12 @@ button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;col
   function get(u,h){return fetch(u+(u.indexOf('?')<0?'?':'&')+'t='+Date.now(),{cache:'no-store',headers:h||{}}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()})}
   function fail(){document.getElementById('b').hidden=true;var m=document.getElementById('m');m.textContent='تعذر تحميل TAX Lens. تأكد من الاتصال بالإنترنت وحاول تاني.';
     var x=document.createElement('button');x.textContent='إعادة المحاولة';x.onclick=function(){location.reload()};m.parentNode.appendChild(x)}
-  get(API,{Accept:'application/vnd.github.raw+json'}).catch(function(){return get(RAW)})
-    .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');document.open();document.write(h);document.close()}).catch(fail);
+  function cache(){try{return caches.open('tl-v1')}catch(e){return Promise.reject(e)}}
+  function run(h){document.open();document.write(h);document.close()}
+  function fromCache(){return cache().then(function(c){return c.match('app')}).then(function(r){if(!r)throw new Error('none');return r.text()})}
+  var to=new Promise(function(_,no){setTimeout(function(){no(new Error('slow'))},12000)});
+  Promise.race([get(API,{Accept:'application/vnd.github.raw+json'}).catch(function(){return get(RAW)}),to])
+    .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');cache().then(function(c){return c.put('app',new Response(h,{headers:{'Content-Type':'text/html'}}))}).catch(function(){});run(h)})
+    .catch(function(){fromCache().then(run).catch(fail)});
 })();
 </script></body></html>
