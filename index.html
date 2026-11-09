@@ -24,4 +24,5 @@ button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;col
     .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');cache().then(function(c){return c.put('app',new Response(h,{headers:{'Content-Type':'text/html'}}))}).catch(function(){});run(h)})
     .catch(function(){fromCache().then(run).catch(fail)});
 })();
+if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 </script></body></html>
