@@ -6,6 +6,9 @@
 .w{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:16px;box-sizing:border-box;transition:opacity .45s ease,transform .55s cubic-bezier(.4,0,.2,1)}
 h1{margin:0;font-size:34px;letter-spacing:.5px}p{margin:0;color:#4A5875;font-size:15px}
 .lg{position:relative;width:96px;height:96px;border-radius:22px;box-shadow:0 10px 30px rgba(20,48,106,.18);transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.w{perspective:900px}.lg{transform-style:preserve-3d;animation:lg3d 1.15s cubic-bezier(.2,.9,.25,1) backwards}
+@keyframes lg3d{0%{transform:rotateX(62deg) rotateY(-38deg) rotateZ(8deg) translateZ(-140px) scale(.7);opacity:0;box-shadow:0 40px 60px rgba(20,48,106,0)}60%{opacity:1}100%{transform:none;opacity:1}}
+.lg .st{filter:drop-shadow(0 0 0 rgba(255,255,255,0));transform:translateZ(18px)}
 .lg svg,.lg img{position:absolute;inset:0;width:100%;height:100%;border-radius:22px}
 .lg img{opacity:0;transition:opacity .35s}.lg.done img{opacity:1}
 .lg .sq{transform-origin:50% 50%;transform:scale(.6);opacity:0;animation:sq .5s cubic-bezier(.3,1.4,.5,1) forwards}
@@ -33,7 +36,7 @@ footer:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;backg
 body.out footer{opacity:0}
 .w{padding-bottom:clamp(90px,16vh,150px)}
 button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;color:#fff;border-radius:999px;padding:9px 24px;cursor:pointer}
-@media (prefers-reduced-motion:reduce){.lg *,h1 *,.sub i,.pg,.bar i:after{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}.lg img{opacity:1}.w,.lg{transition:none}}
+@media (prefers-reduced-motion:reduce){.lg,.lg *,h1 *,.sub i,.pg,.bar i:after{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}.lg img{opacity:1}.w,.lg{transition:none}}
 </style></head>
 <body><div class="w" id="w"><div class="lg" id="lg"><svg viewBox="0 0 512 512" aria-hidden="true"><rect class="sq" x="0" y="0" width="512" height="512" rx="118" fill="#14306A"/>
 <path class="st" d="M182 140V322Q182 357 222 357H272" stroke="#fff" stroke-width="64" style="--l:330;--d:.55s;--s:.35s"/><path class="st" d="M104 220H276" stroke="#fff" stroke-width="56" style="--l:172;--d:.3s;--s:.75s"/><path class="st" d="M328 118V322Q328 357 368 357H410" stroke="#D6202E" stroke-width="64" style="--l:330;--d:.55s;--s:.55s"/></svg><img src="icon-192.png" alt=""></div>
