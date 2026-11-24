@@ -62,10 +62,20 @@ button{font:700 14px inherit;font-family:inherit;border:0;background:#14306A;col
     setTimeout(function(){if(rm){go();return}document.getElementById('w').classList.add('go');document.body.classList.add('out');setTimeout(go,480)},rm?0:wait+220);
     function go(){document.open();document.write(h);document.close()}}
   function fromCache(){return cache().then(function(c){return c.match('app-'+UI)}).then(function(r){if(!r)throw new Error('none');return r.text()})}
-  var to=new Promise(function(_,no){setTimeout(function(){no(new Error('slow'))},45000)});
-  Promise.race([get(API,{Accept:'application/vnd.github.raw+json'}).catch(function(){return get(RAW)}),to])
-    .then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');cache().then(function(c){return c.put('app-'+UI,new Response(h,{headers:{'Content-Type':'text/html'}}))}).catch(function(){});run(h)})
-    .catch(function(){fromCache().then(function(h){get(RAW).then(function(n){if(n.indexOf('TAX Lens')>=0&&n!==h)cache().then(function(c){return c.put('app-'+UI,new Response(n,{headers:{'Content-Type':'text/html'}}))})}).catch(function(){});run(h);setTimeout(function(){try{var d=document.createElement('div');d.textContent='بتشوف نسخة محفوظة لأن التحميل كان بطيء. اعمل تحديث للصفحة عشان تاخد أحدث نسخة.';d.style.cssText='position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99999;background:#D6202E;color:#fff;padding:10px 18px;border-radius:999px;font:700 13px Cairo,Tahoma,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer';d.onclick=function(){location.reload()};document.body.appendChild(d)}catch(e){}},1500)}).catch(fail)});
+  /* cache-first: re-download the 5MB app only when version.json changes */
+  var VURL='https://raw.githubusercontent.com/fouadelwakil-debug/taxlens-data/main/version.json',CVK='tl_cv_'+UI,CV='';try{CV=localStorage.getItem(CVK)||''}catch(e){}
+  function store(h,v){var ok=v&&h.indexOf("var MY='"+v+"'")>=0;cache().then(function(c){return c.put('app-'+UI,new Response(h,{headers:{'Content-Type':'text/html'}}))}).then(function(){try{localStorage.setItem(CVK,ok?v:'')}catch(e){}}).catch(function(){})}
+  function fresh(v){var to=new Promise(function(_,no){setTimeout(function(){no(new Error('slow'))},45000)});
+    return Promise.race([get(RAW).catch(function(){return get(API,{Accept:'application/vnd.github.raw+json'})}),to]).then(function(h){if(h.indexOf('TAX Lens')<0)throw new Error('bad');store(h,v);return h})}
+  function stale(){return fromCache().then(function(h){run(h);setTimeout(function(){try{var d=document.createElement('div');d.textContent='بتشوف نسخة محفوظة لأن التحميل كان بطيء. اعمل تحديث للصفحة عشان تاخد أحدث نسخة.';d.style.cssText='position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99999;background:#D6202E;color:#fff;padding:10px 18px;border-radius:999px;font:700 13px Cairo,Tahoma,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer';d.onclick=function(){location.reload()};document.body.appendChild(d)}catch(e){}},1500)})}
+  var vt=new Promise(function(_,no){setTimeout(function(){no(new Error('vslow'))},6000)});
+  Promise.race([fetch(VURL+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){return String(j.v||'')}),vt])
+    .then(function(v){
+      if(v&&CV===v)return fromCache().then(run).catch(function(){return fresh(v).then(run)});
+      return fresh(v).then(run).catch(function(){return stale()});
+    },function(){ /* version check slow or failed: open the saved copy now, refresh it in the background */
+      return fromCache().then(function(h){run(h);get(RAW).then(function(n){if(n.indexOf('TAX Lens')>=0&&n!==h)store(n,'')}).catch(function(){})}).catch(function(){return fresh('').then(run)});
+    }).catch(fail);
 })();
 if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 </script></body></html>
